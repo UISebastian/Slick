@@ -4,6 +4,8 @@
 
 Dieses Dokument beschreibt die konkret zu implementierende MVP-Architektur fuer Slick. Die strategische Zielarchitektur steht in `docs/architecture-sketch.md`; dieses Dokument ist der Bauplan fuer den ersten umsetzbaren Schnitt.
 
+Die DevOps-, GitOps-, Branching-, Commit- und Design-Pattern-Strategie steht in `docs/implementation-strategy.md`.
+
 ## MVP Decisions
 
 - n8n ist der Orchestrator fuer wiederkehrende und langlaufende Workflows.
