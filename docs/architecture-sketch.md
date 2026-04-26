@@ -98,11 +98,11 @@ Die Context Engine bereitet die Grundlage fuer spezifische, nicht generische Nac
 
 Erstellt signalbasierte Sequenzentwuerfe nach Copy-Framework Input und hält vordefinierte Regeln ein:
 
-TODO - Regeln beschreiben
+- Im MVP nutzt Slick ein Default-Copy-Framework.
+- Kundenseitiges Hochladen und Bearbeiten eigener Frameworks ist Post-MVP.
+- Die konkreten MVP-Regeln sind in `docs/mvp-architecture.md` beschrieben.
 
-Das Studio nutzt externes Wissen und prueft aktiv gegen generische AI-Sales-Muster wie austauschbare Rollen-Pains, substanzloses Lob oder Follow-up-Floskeln.
-
-TODO- Externe Wissen definieren.
+Das Studio nutzt den freigegebenen Kontext und prueft aktiv gegen generische AI-Sales-Muster wie austauschbare Rollen-Pains, substanzloses Lob oder Follow-up-Floskeln.
 
 ### 7. Human Review Gates
 
@@ -119,13 +119,17 @@ Diese Gates sind Produktbestandteil, kein Compliance-Anhaengsel.
 
 Synchronisiert freigegebene Daten mit bestehenden Tools:
 
-TODO - CRM-Sync beschreiben
+- Mailserver fuer Versand und Replies
+- Slick REST API als Product API
+- Apify als Scraping- und Kontextquelle
+- Postgres als primaere MVP-Datenbank
+- n8n als Orchestrator
 
 Slick sollte in der ersten Version nicht versuchen, CRM oder Outreach-Tool zu ersetzen.
 
 ### 9. Learning Loop
 
-Fuehrt Ergebnisse zurueck in das System:
+Fuehrt Ergebnisse zurueck in das System. Im MVP bedeutet das nur Outcome Logging; ein echter Learning Loop ist Post-MVP:
 
 - Reply Rates nach Signal-Tier
 - Meeting Rates nach Persona
@@ -135,9 +139,11 @@ Fuehrt Ergebnisse zurueck in das System:
 - Message Feedback
 - Signalqualitaet
 
-### 10. Consens Layer
+### 10. Consensus Layer
 
-# WICHTIGE VORAUSSETZUNG:LEARNING LOOP IST DEMENTSPRECHEND DESIGNED
+Post-MVP.
+
+Wichtige Voraussetzung: Der Learning Loop muss spaeter entsprechend designed sein.
 
  Vergleicht Input für Context Engine auf Basis: 
 
@@ -149,7 +155,7 @@ Fuehrt Ergebnisse zurueck in das System:
 im Sinne eines geschäftsneutralen Beraters.
 
 
-Slick sollte in der ersten Version nicht versuchen Consens Layer zu implementieren.Der Learning Loop verbessert ICP, Offer, Signaltaxonomie, Sequenzen und Partnerstrategie.
+Slick sollte in der ersten Version nicht versuchen, den Consensus Layer zu implementieren. Spaeter verbessert der Learning Loop ICP, Offer, Signaltaxonomie, Sequenzen und Partnerstrategie.
 
 ## Datenmodell grob
 
@@ -198,6 +204,8 @@ sequenceDiagram
 
 ## MVP-Schnitt
 
+Die konkret zu implementierende MVP-Architektur ist in `docs/mvp-architecture.md` beschrieben.
+
 Der erste sinnvolle Schnitt sollte nicht "alles automatisieren", sondern den Sales-Motor sichtbar machen:
 
 1. Agency Workspace mit ICP-, Persona- und Offer-Artefakten.
@@ -214,7 +222,10 @@ Bewusst nicht im MVP:
 - eigene umfangreiche Enrichment-Datenbank
 - autonome Reply-Beantwortung
 - komplexe Multi-Partner-Marktplatzlogik
-- Basis-Learning ueber Signal-Tier, Persona, Reply und Meeting Outcome.
+- Partner Layer Implementierung
+- Consensus Layer
+- echter Learning Loop ueber Signal-Tier, Persona, Reply und Meeting Outcome.
+
 ## Architekturprinzipien
 
 - Artefakt zuerst: ICP, Offer, Persona, Signal, Kontext und Voice sind eigene Datenobjekte, keine Prompt-Texte.
@@ -223,15 +234,15 @@ Bewusst nicht im MVP:
 - Auditierbar: jede AI-Ableitung muss auf Signal, Kontext und Offer zurueckfuehrbar sein.
 - Lernfaehig: Outcomes verbessern Regeln und Vorlagen, nicht nur Dashboards.
 - Lean start: erst nach echten Lernschleifen mehr Automatisierung bauen.
-- Security first: Least Privilege, Defense in Depth, Multi-Tenancy, Zero Trust, Secure by Design & Default, and Assume Breach. 
+- Security first: Least Privilege, Defense in Depth, Multi-Tenancy, Zero Trust, Secure by Design & Default, and Assume Breach. Secrets werden zur Laufzeit aus einem sicheren Vault oder Pipeline-Environments injiziert. Zielarchitektur sind Secret Vaults hinter Private Endpoints mit starker Authentifizierung. Sensible Daten duerfen nicht in Logs landen.
 
 ## Offene Produktfragen
 
 - Soll Slick zuerst als Web-App, lokaler Workspace-Assistent oder n8n-naher Workflow-Layer starten?
 -> Zuerst als n8n-Workflow-Layer.
 - Welches CRM/Outreach-Tool ist fuer die erste Zielagentur gesetzt?
--> Mailserver, RestAPI, Appify und Google Spreadsheets
+-> Mailserver, RestAPI, Apify und Postgres
 - Sind Signale im ersten Schritt manuell importiert, via APIs angebunden oder durch Scraping/Monitoring gesammelt?
--> Appify hat Agents, die für dich Scrapen. Daher kommt der Kontext. Es sollte auch möglich sein eine API dafür anzubieten.
+-> Apify hat Agents, die für dich Scrapen. Daher kommt der Kontext. Es sollte auch möglich sein eine API dafür anzubieten.
 - Soll Slick mehrere Agenturen frueh mandantenfaehig bedienen oder zunaechst als Single-Agency-System wachsen?
 -> Mandantenfaehigkeit ist ein wichtiger langfristiger Aspekt. Er muss an- und mitgedacht aber nicht implementiert werden.
