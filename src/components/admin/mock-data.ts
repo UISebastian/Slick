@@ -1,9 +1,7 @@
-import type { Route } from "next";
-
 export type BadgeTone = "neutral" | "teal" | "amber" | "red" | "blue" | "purple";
 
 export type QueueSummary = {
-  href: Route;
+  href: string;
   label: string;
   pending: number;
   oldest: string;
