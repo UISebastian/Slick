@@ -10,3 +10,8 @@ export type AuditEventInput = {
   before?: unknown;
   after?: unknown;
 };
+
+export type AuditEvent = AuditEventInput & {
+  id: string;
+  createdAt: string;
+};
