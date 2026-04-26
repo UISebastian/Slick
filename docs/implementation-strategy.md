@@ -10,7 +10,7 @@ Dieses Dokument beschreibt, wie der MVP implementiert werden soll: Stack, DevOps
 - Next.js fuer Admin Dashboard und Product API.
 - Postgres als primaere Datenbank.
 - Docker Postgres lokal, managed Postgres fuer spaetere Umgebungen.
-- Prisma oder Drizzle als typed DB layer. Die finale Wahl wird beim Scaffold getroffen.
+- Drizzle als typed DB layer, nah an SQL und passend zu expliziten Postgres-Migrationen.
 - Shared domain validation mit Zod oder vergleichbarer Schema-Library.
 - Auth-Abstraktion von Beginn an; fuer den MVP darf Auth lokal/seeding-basiert starten, aber Rollenchecks muessen echt sein.
 - n8n integriert zuerst ueber API-Polling und Webhooks, nicht ueber direkten DB-Zugriff.
@@ -336,4 +336,3 @@ This proves the core shape:
 - audit and auth boundaries exist
 
 Only after that should we add context snapshots, draft generation, dispatch, replies, and outcome logging.
-
