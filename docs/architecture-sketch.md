@@ -7,8 +7,8 @@ Diese Skizze basiert auf dem Agency Growth Playbook aus Tolaria und dem dort dok
 ## Annahmen
 
 - Slick unterstuetzt Agenturgruender und spaetere Sales-/Growth-Rollen beim Aufbau eines wiederholbaren Neugeschaeftsmotors.
-- Der Kernnutzen liegt in Spezifitaet: ICP, Offer, Signale, Kontext, Voice und Sequenzen muessen als wiederverwendbare Artefakte gepflegt werden.
-- Menschen bleiben an kritischen Stellen im Loop: Signal-Triage, Message-Review und Reply-Handling.
+- Der Kernnutzen liegt in Spezifitaet: ICP, Offer, Signale, Kontext, Voice, Copy-Writing basierend auf austauschbaren und testbaren Frameworks und Sequenzen muessen als wiederverwendbare Artefakte gepflegt werden.
+- Menschen bleiben an den Stellen im Loop an denen Sie Input liefern müssen: Initialer Aufsatz der Kampagne inklusive ICP, Offer, mögliche Signale, passendem Kontext und Copy-Framework und Reply-Handling.
 - Das erste Produkt sollte lean starten und externe Tools integrieren, statt CRM, Outreach, Enrichment und Workflow-Automation komplett selbst zu bauen.
 
 ## Systemgrenzen
@@ -67,8 +67,7 @@ Strukturierte Ablage fuer:
 - Personas: Champion, Economic Buyer, Technical Validator
 - Productized Offers: Done-for-you, Done-with-you, Enable
 - Preise, Scope, Outcomes und Proof Points
-- Partnerpositionierung, zum Beispiel Varify als Offer- und GTM-Hebel
-
+- Copy-Frameworks und Sequenzen
 Dieses Modul ist die Quelle fuer alle spaeteren Signal-, Kontext- und Message-Entscheidungen.
 
 ### 4. Signal Engine
@@ -76,7 +75,7 @@ Dieses Modul ist die Quelle fuer alle spaeteren Signal-, Kontext- und Message-En
 Sammelt und bewertet externe Signale. Beispiele:
 
 - Tier 1: CRO-Jobposting, Funding, Migration, neuer CMO, Tooling-Wechsel
-- Tier 2: neues Analytics-/Testing-Tool, Peak-Season-Vorbereitung, Traffic-Wachstum
+- Tier 2: Peak-Season-Vorbereitung oder Traffic-Wachstum
 - Tier 3: LinkedIn-Aktivitaet, Awards, Netzwerknaehe
 
 Ausgabe ist kein fertiger Lead, sondern ein strukturierter Signal Record mit Quelle, Aktualitaet, Relevanz, ICP-Match und empfohlener Persona.
@@ -97,15 +96,13 @@ Die Context Engine bereitet die Grundlage fuer spezifische, nicht generische Nac
 
 ### 6. Message Studio
 
-Erstellt signalbasierte Sequenzentwuerfe nach Playbook-Struktur:
+Erstellt signalbasierte Sequenzentwuerfe nach Copy-Framework Input und hält vordefinierte Regeln ein:
 
-- Anchor
-- Bridge
-- Specific Value Hint
-- Soft Specific CTA
-- knappe Signatur
+TODO - Regeln beschreiben
 
-Das Studio nutzt Voice Samples des Senders und prueft aktiv gegen generische AI-Sales-Muster wie austauschbare Rollen-Pains, substanzloses Lob oder Follow-up-Floskeln.
+Das Studio nutzt externes Wissen und prueft aktiv gegen generische AI-Sales-Muster wie austauschbare Rollen-Pains, substanzloses Lob oder Follow-up-Floskeln.
+
+TODO- Externe Wissen definieren.
 
 ### 7. Human Review Gates
 
@@ -122,27 +119,11 @@ Diese Gates sind Produktbestandteil, kein Compliance-Anhaengsel.
 
 Synchronisiert freigegebene Daten mit bestehenden Tools:
 
-- Leads, Accounts und Kontakte
-- Sequenzen und Tasks
-- Deal-Stage oder Opportunity-Erstellung
-- Aktivitaeten und Replies
+TODO - CRM-Sync beschreiben
 
 Slick sollte in der ersten Version nicht versuchen, CRM oder Outreach-Tool zu ersetzen.
 
-### 9. Partner Layer
-
-Modelliert strategische Software-Partnerschaften als GTM-Hebel:
-
-- Partnerprofile
-- Konditionen und Partnerlevel
-- gemeinsame Proof Points
-- Co-Selling-Material
-- Lead-Sharing-Status
-- Produktfeedback und Roadmap-Inputs
-
-Varify ist im Playbook der Referenzpartner, die Architektur sollte aber weitere Partner zulassen.
-
-### 10. Learning Loop
+### 9. Learning Loop
 
 Fuehrt Ergebnisse zurueck in das System:
 
@@ -154,7 +135,21 @@ Fuehrt Ergebnisse zurueck in das System:
 - Message Feedback
 - Signalqualitaet
 
-Der Learning Loop verbessert ICP, Offer, Signaltaxonomie, Sequenzen und Partnerstrategie.
+### 10. Consens Layer
+
+# WICHTIGE VORAUSSETZUNG:LEARNING LOOP IST DEMENTSPRECHEND DESIGNED
+
+ Vergleicht Input für Context Engine auf Basis: 
+
+  - ICP-Satz und Segment-Cluster
+  - Personas: Champion, Economic Buyer, Technical Validator
+  - Outcomes und Proof Points
+  - Copy-Frameworks und Sequenzen
+    
+im Sinne eines geschäftsneutralen Beraters.
+
+
+Slick sollte in der ersten Version nicht versuchen Consens Layer zu implementieren.Der Learning Loop verbessert ICP, Offer, Signaltaxonomie, Sequenzen und Partnerstrategie.
 
 ## Datenmodell grob
 
@@ -210,7 +205,7 @@ Der erste sinnvolle Schnitt sollte nicht "alles automatisieren", sondern den Sal
 3. Context Builder fuer einzelne Signale.
 4. Message Studio mit Voice Samples und Review-Gate.
 5. Export oder einfache Synchronisation zu CRM/Outreach.
-6. Basis-Learning ueber Signal-Tier, Persona, Reply und Meeting Outcome.
+
 
 Bewusst nicht im MVP:
 
@@ -219,11 +214,11 @@ Bewusst nicht im MVP:
 - eigene umfangreiche Enrichment-Datenbank
 - autonome Reply-Beantwortung
 - komplexe Multi-Partner-Marktplatzlogik
-
+- Basis-Learning ueber Signal-Tier, Persona, Reply und Meeting Outcome.
 ## Architekturprinzipien
 
-- Artefakt zuerst: ICP, Offer, Persona, Signal und Voice sind eigene Datenobjekte, keine Prompt-Texte.
-- Human-in-the-loop by design: Freigaben sind Teil des Workflows.
+- Artefakt zuerst: ICP, Offer, Persona, Signal, Kontext und Voice sind eigene Datenobjekte, keine Prompt-Texte.
+- Anyone-in-the-loop by design: Freigaben sind Teil des Workflows und können je nach Art der Freigabe von Menschen oder automatisiert erfolgen.
 - Integrationsfreundlich: externe Tools anbinden, nicht sofort ersetzen.
 - Auditierbar: jede AI-Ableitung muss auf Signal, Kontext und Offer zurueckfuehrbar sein.
 - Lernfaehig: Outcomes verbessern Regeln und Vorlagen, nicht nur Dashboards.
@@ -233,7 +228,10 @@ Bewusst nicht im MVP:
 ## Offene Produktfragen
 
 - Soll Slick zuerst als Web-App, lokaler Workspace-Assistent oder n8n-naher Workflow-Layer starten?
+-> Zuerst als n8n-Workflow-Layer.
 - Welches CRM/Outreach-Tool ist fuer die erste Zielagentur gesetzt?
+-> Mailserver, RestAPI, Appify und Google Spreadsheets
 - Sind Signale im ersten Schritt manuell importiert, via APIs angebunden oder durch Scraping/Monitoring gesammelt?
-- Welche Varify-Daten duerfen produktseitig eingebunden werden?
+-> Appify hat Agents, die für dich Scrapen. Daher kommt der Kontext. Es sollte auch möglich sein eine API dafür anzubieten.
 - Soll Slick mehrere Agenturen frueh mandantenfaehig bedienen oder zunaechst als Single-Agency-System wachsen?
+-> Mandantenfaehigkeit ist ein wichtiger langfristiger Aspekt. Er muss an- und mitgedacht aber nicht implementiert werden.
