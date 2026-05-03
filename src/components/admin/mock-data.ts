@@ -79,6 +79,71 @@ export type WorkflowRun = {
   refs: string;
 };
 
+export type PolicyGateState = "allowed" | "blocked" | "needs_approval";
+
+export type AutomationHealthItem = {
+  label: string;
+  value: string;
+  status: string;
+  detail: string;
+  tone: BadgeTone;
+};
+
+export type N8nFlowRun = {
+  id: string;
+  workflow: string;
+  status: string;
+  trigger: string;
+  startedAt: string;
+  duration: string;
+  attempts: number;
+  gate: PolicyGateState;
+  correlationId: string;
+  refs: string;
+};
+
+export type PolicyDecision = {
+  id: string;
+  account: string;
+  stage: string;
+  policy: string;
+  gate: PolicyGateState;
+  role: string;
+  owner: string;
+  age: string;
+  route: string;
+  reason: string;
+};
+
+export type PolicyDeny = {
+  id: string;
+  rule: string;
+  count: number;
+  latest: string;
+  stage: string;
+  owner: string;
+  tone: BadgeTone;
+};
+
+export type SourceQualityItem = {
+  source: string;
+  score: number;
+  accepted: number;
+  rejected: number;
+  stale: number;
+  lastRun: string;
+  tone: BadgeTone;
+};
+
+export type SlaQueueItem = {
+  queue: string;
+  pending: number;
+  age: string;
+  sla: string;
+  owner: string;
+  tone: BadgeTone;
+};
+
 export type DeadLetterItem = {
   id: string;
   object: string;
@@ -91,24 +156,29 @@ export type DeadLetterItem = {
 
 export const summaryMetrics = [
   {
-    label: "Pending approvals",
+    label: "Policy-gated decisions",
     value: "24",
-    meta: "8 due in the next 4 hours"
+    meta: "9 need human approval"
   },
   {
-    label: "Signals awaiting triage",
-    value: "9",
-    meta: "Oldest request: 2h 14m"
-  },
-  {
-    label: "Dispatch checks blocked",
-    value: "2",
-    meta: "Suppression or missing recipient data"
-  },
-  {
-    label: "Replies needing outcome",
+    label: "Blocked automations",
     value: "5",
-    meta: "3 positive, 2 objections"
+    meta: "3 policy denies, 2 dead letters"
+  },
+  {
+    label: "n8n run success",
+    value: "96.8%",
+    meta: "1 failed run in last 24h"
+  },
+  {
+    label: "Oldest queue age",
+    value: "5h 22m",
+    meta: "Reply outcome SLA breach"
+  },
+  {
+    label: "Source quality",
+    value: "84%",
+    meta: "Apify monitor down 7 pts"
   }
 ] as const;
 
@@ -162,6 +232,243 @@ export const pipelineSnapshot = [
   { label: "Dispatch queued", count: 4, percent: 32 },
   { label: "Sent", count: 21, percent: 74 }
 ] as const;
+
+export const automationHealth: AutomationHealthItem[] = [
+  {
+    label: "Automation health",
+    value: "Degraded",
+    status: "draft_generation failing",
+    detail: "1 failed n8n run, 2 retryable dead letters",
+    tone: "red"
+  },
+  {
+    label: "Policy engine",
+    value: "Gated",
+    status: "human approval queue active",
+    detail: "9 approvals waiting, 3 hard denies",
+    tone: "amber"
+  },
+  {
+    label: "Dispatch guardrails",
+    value: "Holding",
+    status: "suppression checks active",
+    detail: "2 sends blocked before mailbox handoff",
+    tone: "amber"
+  },
+  {
+    label: "Source ingestion",
+    value: "Stable",
+    status: "4 sources within freshness target",
+    detail: "Apify job monitor needs review",
+    tone: "teal"
+  }
+];
+
+export const n8nFlowRuns: N8nFlowRun[] = [
+  {
+    id: "n8n-9042",
+    workflow: "signal_collection",
+    status: "succeeded",
+    trigger: "schedule",
+    startedAt: "Today 09:00",
+    duration: "3m 42s",
+    attempts: 1,
+    gate: "allowed",
+    correlationId: "corr_sig_20260426_0900",
+    refs: "18 signals"
+  },
+  {
+    id: "n8n-9041",
+    workflow: "draft_generation",
+    status: "failed",
+    trigger: "policy_release",
+    startedAt: "Today 08:48",
+    duration: "1m 08s",
+    attempts: 2,
+    gate: "blocked",
+    correlationId: "corr_draft_2208",
+    refs: "draft-2208"
+  },
+  {
+    id: "n8n-9040",
+    workflow: "dispatch_prepare",
+    status: "waiting",
+    trigger: "review_event",
+    startedAt: "Today 08:31",
+    duration: "24m wait",
+    attempts: 1,
+    gate: "needs_approval",
+    correlationId: "corr_disp_3316",
+    refs: "disp-3316"
+  },
+  {
+    id: "n8n-9039",
+    workflow: "reply_polling",
+    status: "succeeded",
+    trigger: "schedule",
+    startedAt: "Today 08:00",
+    duration: "54s",
+    attempts: 1,
+    gate: "allowed",
+    correlationId: "corr_reply_0800",
+    refs: "3 replies"
+  }
+];
+
+export const policyDecisions: PolicyDecision[] = [
+  {
+    id: "gate-771",
+    account: "Aster Supply",
+    stage: "dispatch_prepare",
+    policy: "recipient_required",
+    gate: "blocked",
+    role: "Ops admin",
+    owner: "Delivery desk",
+    age: "44m",
+    route: "/admin/dispatch",
+    reason: "Recipient email missing"
+  },
+  {
+    id: "gate-770",
+    account: "Helio Retail Group",
+    stage: "dispatch_prepare",
+    policy: "suppression_review",
+    gate: "needs_approval",
+    role: "Policy reviewer",
+    owner: "Mara",
+    age: "31m",
+    route: "/admin/dispatch",
+    reason: "Domain suppression match"
+  },
+  {
+    id: "gate-769",
+    account: "Northstar Cart Labs",
+    stage: "draft_generation",
+    policy: "claim_grounding",
+    gate: "needs_approval",
+    role: "Copy review",
+    owner: "Reviewer pool",
+    age: "18m",
+    route: "/admin/drafts",
+    reason: "Timeline claim needs review"
+  },
+  {
+    id: "gate-768",
+    account: "Vector Loom",
+    stage: "reply_outcome",
+    policy: "manual_positive_reply",
+    gate: "allowed",
+    role: "Account owner",
+    owner: "Account owner",
+    age: "12m",
+    route: "/admin/replies",
+    reason: "Manual follow-up permitted"
+  }
+];
+
+export const policyDenies: PolicyDeny[] = [
+  {
+    id: "deny-140",
+    rule: "missing_recipient",
+    count: 2,
+    latest: "Today 09:16",
+    stage: "dispatch_prepare",
+    owner: "Delivery desk",
+    tone: "red"
+  },
+  {
+    id: "deny-139",
+    rule: "unsupported_claim",
+    count: 1,
+    latest: "Today 08:52",
+    stage: "draft_generation",
+    owner: "Copy review",
+    tone: "amber"
+  },
+  {
+    id: "deny-138",
+    rule: "domain_suppression",
+    count: 1,
+    latest: "Today 08:31",
+    stage: "dispatch_prepare",
+    owner: "Policy reviewer",
+    tone: "amber"
+  }
+];
+
+export const sourceQuality: SourceQualityItem[] = [
+  {
+    source: "Apify job monitor",
+    score: 78,
+    accepted: 14,
+    rejected: 4,
+    stale: 1,
+    lastRun: "Today 09:00",
+    tone: "amber"
+  },
+  {
+    source: "Manual imports",
+    score: 92,
+    accepted: 5,
+    rejected: 1,
+    stale: 0,
+    lastRun: "Today 08:42",
+    tone: "teal"
+  },
+  {
+    source: "Reply mailbox",
+    score: 88,
+    accepted: 3,
+    rejected: 0,
+    stale: 0,
+    lastRun: "Today 08:00",
+    tone: "teal"
+  },
+  {
+    source: "Suppression lookup",
+    score: 81,
+    accepted: 11,
+    rejected: 2,
+    stale: 1,
+    lastRun: "Today 07:55",
+    tone: "blue"
+  }
+];
+
+export const slaQueues: SlaQueueItem[] = [
+  {
+    queue: "Replies and outcomes",
+    pending: 5,
+    age: "5h 22m",
+    sla: "4h",
+    owner: "Account owner",
+    tone: "red"
+  },
+  {
+    queue: "Signal review",
+    pending: 9,
+    age: "2h 14m",
+    sla: "3h",
+    owner: "Reviewer pool",
+    tone: "amber"
+  },
+  {
+    queue: "Draft review",
+    pending: 7,
+    age: "1h 03m",
+    sla: "4h",
+    owner: "Copy review",
+    tone: "blue"
+  },
+  {
+    queue: "Workflow dead letters",
+    pending: 2,
+    age: "31m",
+    sla: "1h",
+    owner: "Ops",
+    tone: "red"
+  }
+];
 
 export const signalReviews: SignalReview[] = [
   {

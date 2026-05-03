@@ -28,13 +28,13 @@ export function AdminShell({ children }: { children: ReactNode }) {
       <div className={styles.mainColumn}>
         <header className={styles.topbar}>
           <div>
-            <p className={styles.topbarTitle}>Review desk</p>
-            <p className={styles.topbarMeta}>Signal, draft, dispatch, reply, and workflow approvals</p>
+            <p className={styles.topbarTitle}>Automation cockpit</p>
+            <p className={styles.topbarMeta}>Policy gates, n8n flow health, approvals, and workflow exceptions</p>
           </div>
           <div className={styles.topbarActions}>
             <span className={styles.healthPill}>
               <span className={styles.healthDot} aria-hidden="true" />
-              Local mock data
+              Local automation data
             </span>
             <span className={styles.rolePill}>Owner</span>
           </div>

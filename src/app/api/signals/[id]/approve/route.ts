@@ -20,7 +20,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const input = await parseJsonBody(request, signalDecisionRequestSchema, {
       allowEmpty: true
     });
-    const user = await requireCurrentUser("reviewer");
+    const user = await requireCurrentUser("viewer");
     const result = await approveSignal({
       signalId: params.id,
       input,

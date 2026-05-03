@@ -18,7 +18,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
   return handleApiRoute(async () => {
     const params = parseData(await context.params, reviewIdParamsSchema);
     const input = await parseJsonBody(request, reviewDecisionRequestSchema);
-    const user = await requireCurrentUser("reviewer");
+    const user = await requireCurrentUser("viewer");
     const result = await decideReview({
       reviewRequestId: params.id,
       input,

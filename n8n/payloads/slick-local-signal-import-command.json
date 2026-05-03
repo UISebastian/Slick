@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "2026-04-30",
+  "commandType": "signals.import",
+  "flow": "signals.import",
+  "correlationId": "corr-slick-local-file-001",
+  "idempotencyKey": "slick-local-file-001",
+  "attempt": 1,
+  "actor": {
+    "type": "n8n",
+    "id": "local-n8n"
+  },
+  "payload": {
+    "signals": [
+      {
+        "campaignId": "00000000-0000-4000-8000-000000000020",
+        "signalRuleId": "00000000-0000-4000-8000-000000000030",
+        "sourceType": "api",
+        "sourceUrl": "https://example.com/partners/local-file",
+        "sourceRunId": "n8n-local-file-001",
+        "observedAt": "2026-04-30T10:00:00.000Z",
+        "companyName": "Local File Signal",
+        "companyDomain": "local-file.example",
+        "personRole": "Head of Ecommerce",
+        "signalSummary": "Local file smoke test imported an n8n-style signal through the automation command endpoint.",
+        "evidence": {
+          "sourceType": "partner_directory",
+          "sourceName": "Local file smoke test",
+          "evidenceUrl": "https://example.com/partners/local-file",
+          "snippets": [
+            "Partner profile references Shopify Plus checkout optimization."
+          ]
+        },
+        "icpMatchScore": 88,
+        "dedupeKey": "local-file.example:n8n-local-001"
+      }
+    ]
+  }
+}

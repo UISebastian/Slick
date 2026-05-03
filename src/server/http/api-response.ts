@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { PolicyDeniedError } from "../modules/policies";
 import { WorkflowApplicationError } from "../modules/workflows/errors";
 
 export async function handleApiRoute(handler: () => Promise<Response> | Response) {
@@ -15,6 +16,24 @@ export async function handleApiRoute(handler: () => Promise<Response> | Response
           }
         },
         { status: error.statusCode }
+      );
+    }
+
+    if (error instanceof PolicyDeniedError) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "policy_denied",
+            message: "Decision denied by policy",
+            details: {
+              decision: error.result.decision,
+              severity: error.result.severity,
+              reasons: error.result.reasons,
+              audit: error.result.audit
+            }
+          }
+        },
+        { status: 403 }
       );
     }
 

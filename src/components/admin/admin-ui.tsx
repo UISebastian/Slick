@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import type { ReactNode } from "react";
 import styles from "./admin.module.css";
-import type { BadgeTone } from "./mock-data";
+import type { BadgeTone, PolicyGateState } from "./mock-data";
 
 const badgeToneClass: Record<BadgeTone, string> = {
   neutral: styles.badgeNeutral,
@@ -11,6 +11,36 @@ const badgeToneClass: Record<BadgeTone, string> = {
   red: styles.badgeRed,
   blue: styles.badgeBlue,
   purple: styles.badgePurple
+};
+
+const metricToneClass: Record<BadgeTone, string> = {
+  neutral: styles.metricCardNeutral,
+  teal: styles.metricCardTeal,
+  amber: styles.metricCardAmber,
+  red: styles.metricCardRed,
+  blue: styles.metricCardBlue,
+  purple: styles.metricCardPurple
+};
+
+const statusDotToneClass: Record<BadgeTone, string> = {
+  neutral: styles.statusDotNeutral,
+  teal: styles.statusDotTeal,
+  amber: styles.statusDotAmber,
+  red: styles.statusDotRed,
+  blue: styles.statusDotBlue,
+  purple: styles.statusDotPurple
+};
+
+const gateTone: Record<PolicyGateState, BadgeTone> = {
+  allowed: "teal",
+  blocked: "red",
+  needs_approval: "amber"
+};
+
+const gateLabel: Record<PolicyGateState, string> = {
+  allowed: "Allowed",
+  blocked: "Blocked",
+  needs_approval: "Needs approval"
 };
 
 export function PageHeader({
@@ -61,9 +91,19 @@ export function Section({
   );
 }
 
-export function MetricCard({ label, value, meta }: { label: string; value: string; meta: string }) {
+export function MetricCard({
+  label,
+  value,
+  meta,
+  tone = "neutral"
+}: {
+  label: string;
+  value: string;
+  meta: string;
+  tone?: BadgeTone;
+}) {
   return (
-    <article className={styles.metricCard}>
+    <article className={`${styles.metricCard} ${metricToneClass[tone]}`}>
       <p className={styles.metricLabel}>{label}</p>
       <p className={styles.metricValue}>{value}</p>
       <p className={styles.metricMeta}>{meta}</p>
@@ -73,6 +113,14 @@ export function MetricCard({ label, value, meta }: { label: string; value: strin
 
 export function StatusBadge({ children, tone = "neutral" }: { children: ReactNode; tone?: BadgeTone }) {
   return <span className={`${styles.badge} ${badgeToneClass[tone]}`}>{children}</span>;
+}
+
+export function StatusDot({ tone = "neutral" }: { tone?: BadgeTone }) {
+  return <span className={`${styles.statusDot} ${statusDotToneClass[tone]}`} aria-hidden="true" />;
+}
+
+export function PolicyGateBadge({ state }: { state: PolicyGateState }) {
+  return <StatusBadge tone={gateTone[state]}>{gateLabel[state]}</StatusBadge>;
 }
 
 export function PriorityBadge({ priority }: { priority: "High" | "Medium" | "Low" }) {

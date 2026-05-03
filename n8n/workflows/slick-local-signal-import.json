@@ -1,0 +1,92 @@
+{
+  "id": "slick-local-signal-import",
+  "name": "Slick Local - Signal Import Smoke Test",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const runId = Date.now();\nconst observedAt = new Date().toISOString();\nconst correlationId = `corr-slick-local-${runId}`;\nconst idempotencyKey = `slick-local-import-${runId}`;\n\nreturn [\n  {\n    json: {\n      command: {\n        schemaVersion: '2026-04-30',\n        commandType: 'signals.import',\n        flow: 'signals.import',\n        correlationId,\n        idempotencyKey,\n        attempt: 1,\n        actor: {\n          type: 'n8n',\n          id: 'local-n8n'\n        },\n        occurredAt: observedAt,\n        payload: {\n          signals: [\n            {\n              campaignId: '00000000-0000-4000-8000-000000000020',\n              signalRuleId: '00000000-0000-4000-8000-000000000030',\n              sourceType: 'api',\n              sourceUrl: 'https://example.com/partners/northstar-cart-labs',\n              sourceRunId: `n8n-local-${runId}`,\n              observedAt,\n              companyName: 'Northstar Cart Labs',\n              companyDomain: 'northstar-cart.example',\n              personRole: 'Head of Ecommerce',\n              signalSummary: 'Local n8n smoke test imported a partner-directory style ecommerce growth signal.',\n              evidence: {\n                sourceType: 'partner_directory',\n                sourceName: 'Local n8n smoke test',\n                evidenceUrl: 'https://example.com/partners/northstar-cart-labs',\n                snippets: ['Partner profile references Shopify Plus checkout optimization and CRO services.']\n              },\n              icpMatchScore: 88,\n              dedupeKey: `northstar-cart.example:n8n-local:${runId}`\n            }\n          ]\n        }\n      }\n    }\n  }\n];"
+      },
+      "id": "build-slick-command",
+      "name": "Build Slick Command",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3000/api/automation/commands",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.command.idempotencyKey }}"
+            },
+            {
+              "name": "X-Correlation-Id",
+              "value": "={{ $json.command.correlationId }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.command }}",
+        "options": {}
+      },
+      "id": "post-slick-command",
+      "name": "POST Slick Automation Command",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        20,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build Slick Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Slick Command": {
+      "main": [
+        [
+          {
+            "node": "POST Slick Automation Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "local-slick-signal-import"
+}

@@ -1,10 +1,14 @@
 import { env } from "@/server/env";
 
+export const userRoles = ["owner", "admin", "reviewer", "operator", "viewer", "automation"] as const;
+
+export type UserRole = (typeof userRoles)[number];
+
 export type CurrentUser = {
   id: string;
   agencyId: string;
   email: string;
-  role: "owner" | "admin" | "reviewer" | "viewer";
+  role: UserRole;
 };
 
 export async function getCurrentUser(): Promise<CurrentUser> {

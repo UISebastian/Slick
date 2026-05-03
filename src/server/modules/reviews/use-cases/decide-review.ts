@@ -2,8 +2,15 @@ import { randomUUID } from "node:crypto";
 import type { CurrentUser } from "../../../auth/current-user";
 import { auditLog, type AuditLog } from "../../audit/audit-log";
 import { runMaybeWithIdempotency } from "../../idempotency/with-idempotency";
+import {
+  guardDispatchDecision,
+  guardDraftDecision,
+  guardReplyOutcomeClassification,
+  PolicyDeniedError,
+  type PolicyEvaluationContext,
+  type PolicyEvaluationResult
+} from "../../policies";
 import { decideSignal } from "../../signals/use-cases/decide-signal";
-import { requireRole } from "../../workflows/authorization";
 import { conflict, notFound, unprocessableEntity } from "../../workflows/errors";
 import { reviewRepository, type ReviewRepository } from "../repository";
 import type { ReviewDecisionRecord, ReviewRequest, ReviewRequestStatus } from "../types";
@@ -24,6 +31,7 @@ export type DecideReviewResult = {
     id: string;
     status?: string;
   };
+  policy?: PolicyEvaluationResult;
   idempotentReplay: boolean;
 };
 
@@ -41,8 +49,6 @@ export async function decideReview(
   command: DecideReviewCommand,
   dependencies = defaultDependencies
 ): Promise<DecideReviewResult> {
-  requireRole(command.user, "reviewer");
-
   const { result, replayed } = await runMaybeWithIdempotency({
     agencyId: command.user.agencyId,
     operation: "reviews.decision",
@@ -97,6 +103,7 @@ async function decideReviewOnce(
     return {
       reviewRequest: signalDecision.reviewRequest ?? reviewRequest,
       decision: signalDecision.decision,
+      policy: signalDecision.policy,
       object: {
         type: "signal",
         id: signalDecision.signal.id,
@@ -113,6 +120,12 @@ async function decideGenericReview(
   dependencies: DecideReviewDependencies,
   reviewRequest: ReviewRequest
 ): Promise<Omit<DecideReviewResult, "idempotentReplay">> {
+  const policy = await assertGenericReviewPolicy({
+    command,
+    reviewRequest,
+    audit: dependencies.audit
+  });
+
   const status: ReviewRequestStatus = command.input.decision;
   const updatedReviewRequest = await dependencies.reviews.updateRequestStatus({
     agencyId: command.user.agencyId,
@@ -152,9 +165,122 @@ async function decideGenericReview(
   return {
     reviewRequest: updatedReviewRequest,
     decision,
+    policy,
     object: {
       type: reviewRequest.objectType,
       id: reviewRequest.objectId
     }
   };
+}
+
+async function assertGenericReviewPolicy(input: {
+  command: DecideReviewCommand;
+  reviewRequest: ReviewRequest;
+  audit: AuditLog;
+}) {
+  const result = evaluateGenericReviewPolicy(input.command, input.reviewRequest);
+
+  await appendPolicyAudit({
+    audit: input.audit,
+    result,
+    user: input.command.user,
+    objectType: input.reviewRequest.objectType,
+    objectId: input.reviewRequest.objectId
+  });
+
+  if (!result.allow) {
+    throw new PolicyDeniedError(result);
+  }
+
+  return result;
+}
+
+function evaluateGenericReviewPolicy(command: DecideReviewCommand, reviewRequest: ReviewRequest) {
+  const changes = asRecord(command.input.changes);
+  const baseContext: PolicyEvaluationContext = {
+    objectType: reviewRequest.objectType,
+    objectId: reviewRequest.objectId
+  };
+
+  if (reviewRequest.requestType === "approve_draft") {
+    return guardDraftDecision({
+      action: command.input.decision === "approved" ? "approve" : "reject",
+      user: command.user,
+      context: {
+        ...baseContext,
+        status: "draft.review_requested",
+        targetStatus:
+          command.input.decision === "approved"
+            ? "draft.approved"
+            : command.input.decision === "changes_requested"
+              ? "draft.changes_requested"
+              : "draft.rejected",
+        ...(changes.quality && typeof changes.quality === "object"
+          ? { quality: changes.quality }
+          : {})
+      }
+    });
+  }
+
+  if (reviewRequest.requestType === "approve_dispatch") {
+    const approved = command.input.decision === "approved";
+
+    return guardDispatchDecision({
+      action: approved ? "approve" : "block",
+      user: command.user,
+      context: {
+        ...baseContext,
+        status: "dispatch.review_requested",
+        targetStatus: approved ? "dispatch.approved" : "dispatch.rejected",
+        ...(changes.sendability && typeof changes.sendability === "object"
+          ? { sendability: changes.sendability }
+          : {}),
+        blockReason: typeof changes.blockReason === "string" ? changes.blockReason : "manual_risk"
+      }
+    });
+  }
+
+  return guardReplyOutcomeClassification({
+    user: command.user,
+    context: {
+      ...baseContext,
+      status: "reply.received",
+      targetStatus: "outcome.logged",
+      classification: changes.classification,
+      classificationConfidence: changes.classificationConfidence,
+      outcomeType: changes.outcomeType
+    }
+  });
+}
+
+async function appendPolicyAudit(input: {
+  audit: AuditLog;
+  result: PolicyEvaluationResult;
+  user: CurrentUser;
+  objectType: string;
+  objectId: string;
+}) {
+  await input.audit.append({
+    agencyId: input.user.agencyId,
+    actorType: input.user.role === "automation" ? "api_client" : "member",
+    actorId: input.user.id,
+    eventType: input.result.allow ? "policy.decision_allowed" : "policy.decision_denied",
+    objectType: input.objectType,
+    objectId: input.objectId,
+    after: {
+      decision: input.result.decision,
+      result: input.result.audit.result,
+      severity: input.result.severity,
+      reasons: input.result.reasons,
+      policySetId: input.result.audit.policySetId,
+      policySetVersion: input.result.audit.policySetVersion,
+      policyIds: input.result.audit.policyIds
+    }
+  });
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
 }

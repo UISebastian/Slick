@@ -258,9 +258,34 @@
 .metricCard {
   min-height: 124px;
   border: 1px solid var(--line);
+  border-left-width: 4px;
   border-radius: 8px;
   background: #ffffff;
   padding: 16px;
+}
+
+.metricCardNeutral {
+  border-left-color: #cfd8e3;
+}
+
+.metricCardTeal {
+  border-left-color: #0f766e;
+}
+
+.metricCardAmber {
+  border-left-color: #dc6803;
+}
+
+.metricCardRed {
+  border-left-color: #d92d20;
+}
+
+.metricCardBlue {
+  border-left-color: #175cd3;
+}
+
+.metricCardPurple {
+  border-left-color: #6941c6;
 }
 
 .metricLabel {
@@ -320,6 +345,194 @@
   padding: 18px;
 }
 
+.cockpitColumns,
+.policyColumns,
+.opsColumns {
+  display: grid;
+  gap: 16px;
+  align-items: start;
+}
+
+.cockpitColumns {
+  grid-template-columns: minmax(0, 1.1fr) minmax(340px, 0.9fr);
+}
+
+.policyColumns,
+.opsColumns {
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+}
+
+.railStack {
+  display: grid;
+  gap: 16px;
+}
+
+.healthList,
+.slaList,
+.compactList,
+.sourceQualityList {
+  display: grid;
+  gap: 0;
+}
+
+.healthRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(96px, auto) minmax(220px, 0.72fr);
+  gap: 14px;
+  align-items: center;
+  padding: 13px 0;
+  border-bottom: 1px solid #e4e9ef;
+}
+
+.healthRow:first-child,
+.slaRow:first-child,
+.compactRow:first-child,
+.sourceQualityRow:first-child {
+  padding-top: 0;
+}
+
+.healthRow:last-child,
+.slaRow:last-child,
+.compactRow:last-child,
+.sourceQualityRow:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.statusLine {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+}
+
+.statusDot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #98a2b3;
+}
+
+.statusDotNeutral {
+  background: #667085;
+}
+
+.statusDotTeal {
+  background: #0f766e;
+}
+
+.statusDotAmber {
+  background: #dc6803;
+}
+
+.statusDotRed {
+  background: #d92d20;
+}
+
+.statusDotBlue {
+  background: #175cd3;
+}
+
+.statusDotPurple {
+  background: #6941c6;
+}
+
+.rowTitle {
+  margin: 0;
+  color: #101828;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.rowMeta {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.healthValue {
+  color: #101828;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.slaRow,
+.compactRow,
+.sourceQualityRow {
+  padding: 13px 0;
+  border-bottom: 1px solid #e4e9ef;
+}
+
+.slaRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(210px, auto);
+  gap: 14px;
+  align-items: center;
+}
+
+.slaMetrics,
+.sourceStats {
+  display: grid;
+  gap: 8px;
+}
+
+.slaMetrics {
+  grid-template-columns: repeat(3, minmax(58px, 1fr));
+}
+
+.sourceStats {
+  grid-template-columns: repeat(3, minmax(62px, 1fr));
+}
+
+.miniMetric {
+  min-width: 0;
+}
+
+.miniMetricLabel {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.miniMetricValue {
+  display: block;
+  margin-top: 3px;
+  color: #101828;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.compactRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.sourceQualityRow {
+  display: grid;
+  gap: 10px;
+}
+
+.sourceQualityHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
 .tableWrap {
   width: 100%;
   overflow-x: auto;
@@ -368,6 +581,8 @@
 }
 
 .truncate {
+  display: block;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -687,6 +902,12 @@
   .split {
     grid-template-columns: 1fr;
   }
+
+  .cockpitColumns,
+  .policyColumns,
+  .opsColumns {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 760px) {
@@ -721,6 +942,24 @@
   }
 
   .pipelineStep {
+    grid-template-columns: 1fr;
+  }
+
+  .healthRow,
+  .slaRow,
+  .compactRow,
+  .sourceQualityHeader {
+    grid-template-columns: 1fr;
+  }
+
+  .healthValue {
+    text-align: left;
+  }
+}
+
+@media (max-width: 520px) {
+  .slaMetrics,
+  .sourceStats {
     grid-template-columns: 1fr;
   }
 }

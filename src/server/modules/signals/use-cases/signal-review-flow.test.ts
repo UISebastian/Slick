@@ -101,4 +101,45 @@ describe("signal review flow", () => {
     expect(contextQueue.count).toBe(1);
     expect(contextQueue.items[0]?.signalId).toBe(imported.signals[0]?.signalId);
   });
+
+  it("denies signal decisions when policy requirements are not met", async () => {
+    await importSignals({
+      input: importInput,
+      idempotencyKey: "signal-import-test-2",
+      user
+    });
+
+    const pendingReviews = await listReviews({
+      input: {
+        status: "pending",
+        limit: 50
+      },
+      user
+    });
+
+    await expect(
+      decideReview({
+        reviewRequestId: pendingReviews.reviews[0]!.id,
+        input: {
+          decision: "approved",
+          decisionNote: "Viewer should not approve."
+        },
+        user: {
+          ...user,
+          role: "viewer"
+        }
+      })
+    ).rejects.toMatchObject({
+      name: "PolicyDeniedError"
+    });
+
+    const contextQueue = await listContextQueue({
+      input: {
+        limit: 50
+      },
+      user
+    });
+
+    expect(contextQueue.count).toBe(0);
+  });
 });

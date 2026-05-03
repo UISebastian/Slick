@@ -2,10 +2,14 @@ import { randomUUID } from "node:crypto";
 import type { CurrentUser } from "../../../auth/current-user";
 import { auditLog, type AuditLog } from "../../audit/audit-log";
 import { runMaybeWithIdempotency } from "../../idempotency/with-idempotency";
+import {
+  guardSignalDecision,
+  PolicyDeniedError,
+  type PolicyEvaluationResult
+} from "../../policies";
 import { reviewRepository, type ReviewRepository } from "../../reviews/repository";
 import type { ReviewDecisionRecord, ReviewRequest, ReviewRequestStatus } from "../../reviews/types";
 import { assertTransition } from "../../status/status-machine";
-import { requireRole } from "../../workflows/authorization";
 import { conflict, notFound } from "../../workflows/errors";
 import type { SignalDecisionRequest } from "../schemas";
 import { signalRepository, type SignalRepository } from "../repository";
@@ -26,6 +30,7 @@ export type SignalDecisionResult = {
   signal: SignalRecord;
   reviewRequest?: ReviewRequest;
   decision?: ReviewDecisionRecord;
+  policy?: PolicyEvaluationResult;
   idempotentReplay: boolean;
   alreadyProcessed: boolean;
 };
@@ -72,8 +77,6 @@ export async function decideSignal(
   command: SignalDecisionCommand,
   dependencies = defaultDependencies
 ): Promise<SignalDecisionResult> {
-  requireRole(command.user, "reviewer");
-
   const { result, replayed } = await runMaybeWithIdempotency({
     agencyId: command.user.agencyId,
     operation: `signals.${command.action}`,
@@ -110,6 +113,13 @@ async function decideSignalOnce(
   }
 
   if (signal.status !== "signal.triage_requested") {
+    await assertSignalDecisionPolicy({
+      command,
+      signal,
+      targetStatus: alreadyProcessedStatus,
+      audit: dependencies.audit
+    });
+
     throw conflict("Signal is not waiting for triage", {
       currentStatus: signal.status
     });
@@ -117,10 +127,26 @@ async function decideSignalOnce(
 
   const reviewRequest = await findOrCreateSignalReviewRequest(command, dependencies.reviews);
   if (reviewRequest.status !== "pending") {
+    await assertSignalDecisionPolicy({
+      command,
+      signal,
+      reviewRequest,
+      targetStatus: alreadyProcessedStatus,
+      audit: dependencies.audit
+    });
+
     throw conflict("Review request is not pending", {
       currentStatus: reviewRequest.status
     });
   }
+
+  const policy = await assertSignalDecisionPolicy({
+    command,
+    signal,
+    reviewRequest,
+    targetStatus: alreadyProcessedStatus,
+    audit: dependencies.audit
+  });
 
   const decisionValue: "approved" | "rejected" =
     command.action === "approve" ? "approved" : "rejected";
@@ -187,8 +213,49 @@ async function decideSignalOnce(
     signal: finalSignal,
     reviewRequest: updatedReviewRequest,
     decision,
+    policy,
     alreadyProcessed: false
   };
+}
+
+async function assertSignalDecisionPolicy(input: {
+  command: SignalDecisionCommand;
+  signal: SignalRecord;
+  reviewRequest?: ReviewRequest;
+  targetStatus: SignalRecord["status"];
+  audit: AuditLog;
+}) {
+  const result = guardSignalDecision({
+    action: input.command.action,
+    user: input.command.user,
+    context: {
+      objectType: "signal",
+      objectId: input.signal.id,
+      status: input.signal.status,
+      targetStatus: input.targetStatus,
+      ...(input.reviewRequest
+        ? {
+            review: {
+              status: input.reviewRequest.status
+            }
+          }
+        : {})
+    }
+  });
+
+  await appendPolicyAudit({
+    audit: input.audit,
+    result,
+    user: input.command.user,
+    objectType: "signal",
+    objectId: input.signal.id
+  });
+
+  if (!result.allow) {
+    throw new PolicyDeniedError(result);
+  }
+
+  return result;
 }
 
 async function findOrCreateSignalReviewRequest(
@@ -271,4 +338,30 @@ async function transitionSignal(input: {
   });
 
   return updated;
+}
+
+async function appendPolicyAudit(input: {
+  audit: AuditLog;
+  result: PolicyEvaluationResult;
+  user: CurrentUser;
+  objectType: string;
+  objectId: string;
+}) {
+  await input.audit.append({
+    agencyId: input.user.agencyId,
+    actorType: input.user.role === "automation" ? "api_client" : "member",
+    actorId: input.user.id,
+    eventType: input.result.allow ? "policy.decision_allowed" : "policy.decision_denied",
+    objectType: input.objectType,
+    objectId: input.objectId,
+    after: {
+      decision: input.result.decision,
+      result: input.result.audit.result,
+      severity: input.result.severity,
+      reasons: input.result.reasons,
+      policySetId: input.result.audit.policySetId,
+      policySetVersion: input.result.audit.policySetVersion,
+      policyIds: input.result.audit.policyIds
+    }
+  });
 }
