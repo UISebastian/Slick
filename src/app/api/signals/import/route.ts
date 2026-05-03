@@ -1,6 +1,6 @@
-import { NextResponse, type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { handleApiRoute } from "@/server/http/api-response";
+import { apiJson, handleApiRoute } from "@/server/http/api-response";
 import { requireCurrentUser } from "@/server/http/auth";
 import { parseJsonBody } from "@/server/http/validation";
 import { importSignalsRequestSchema } from "@/server/modules/signals/schemas";
@@ -21,10 +21,10 @@ export async function POST(request: NextRequest) {
       user
     });
 
-    return NextResponse.json(result, {
+    return apiJson(result, {
       status: result.idempotentReplay ? 200 : 201
-    });
-  });
+    }, { request });
+  }, { request });
 }
 
 function parseIdempotencyKey(request: NextRequest, bodyKey?: string) {

@@ -23,6 +23,11 @@ const baseHeaders = [
     name: "X-Correlation-Id",
     value: "corr-flow-object-attempt",
     note: "Carries one trace across n8n, Slick, audit, logs, and dead letters."
+  },
+  {
+    name: "X-Request-Id",
+    value: "req-client-generated-id",
+    note: "Optional. Echoed on every response and included in structured errors."
   }
 ] as const;
 
@@ -79,6 +84,7 @@ export default function DeveloperPortalPage() {
         <aside className={styles.sidebar} aria-label="API guide">
           <a href="#quickstart">Quickstart</a>
           <a href="#headers">Headers</a>
+          <a href="#errors">Errors</a>
           <a href="#endpoints">Endpoints</a>
           <a href="#example">n8n example</a>
           <a href="#policies">Policy gates</a>
@@ -114,6 +120,35 @@ export default function DeveloperPortalPage() {
                 </article>
               ))}
             </div>
+          </section>
+
+          <section className={styles.section} id="errors">
+            <div className={styles.sectionHeader}>
+              <p className={styles.kicker}>Failure contract</p>
+              <h2>Structured errors</h2>
+            </div>
+            <pre className={styles.codeBlock}>
+              <code>{JSON.stringify(
+                {
+                  error: {
+                    code: "bad_request",
+                    message: "Request validation failed",
+                    details: {
+                      issues: [
+                        {
+                          path: "signals.0.companyName",
+                          message: "Too small: expected string to have >=1 characters"
+                        }
+                      ]
+                    },
+                    requestId: "req-client-generated-id",
+                    correlationId: "corr-flow-object-attempt"
+                  }
+                },
+                null,
+                2
+              )}</code>
+            </pre>
           </section>
 
           <section className={styles.section} id="endpoints">

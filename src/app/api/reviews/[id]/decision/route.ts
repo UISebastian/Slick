@@ -1,5 +1,5 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { handleApiRoute } from "@/server/http/api-response";
+import type { NextRequest } from "next/server";
+import { apiJson, handleApiRoute } from "@/server/http/api-response";
 import { requireCurrentUser } from "@/server/http/auth";
 import { parseData, parseJsonBody } from "@/server/http/validation";
 import {
@@ -26,6 +26,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
       user
     });
 
-    return NextResponse.json(result);
-  });
+    return apiJson(result, {}, { request });
+  }, { request });
 }

@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { apiJson } from "@/server/http/api-response";
 import { openApiSpec } from "@/server/openapi/spec";
 
-export function GET() {
-  return NextResponse.json(openApiSpec);
+export function GET(request: NextRequest) {
+  return apiJson(openApiSpec, {}, { request });
 }

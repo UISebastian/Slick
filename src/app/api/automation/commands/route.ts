@@ -1,5 +1,5 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { handleApiRoute } from "@/server/http/api-response";
+import type { NextRequest } from "next/server";
+import { apiJson, handleApiRoute } from "@/server/http/api-response";
 import { requireCurrentUser } from "@/server/http/auth";
 import { parseJsonBody } from "@/server/http/validation";
 import { automationCommandSchema, executeAutomationCommand } from "@/server/modules/automation";
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       user
     });
 
-    return NextResponse.json(result, {
+    return apiJson(result, {
       status:
         command.commandType === "signals.import" &&
         typeof result.result === "object" &&
@@ -34,6 +34,6 @@ export async function POST(request: NextRequest) {
         result.result.idempotentReplay === true
           ? 200
           : 202
-    });
-  });
+    }, { request });
+  }, { request });
 }

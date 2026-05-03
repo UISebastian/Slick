@@ -1,5 +1,5 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { handleApiRoute } from "@/server/http/api-response";
+import type { NextRequest } from "next/server";
+import { apiJson, handleApiRoute } from "@/server/http/api-response";
 import { requireCurrentUser } from "@/server/http/auth";
 import { parseSearchParams } from "@/server/http/validation";
 import { listSignalsQuerySchema } from "@/server/modules/signals/schemas";
@@ -11,6 +11,6 @@ export async function GET(request: NextRequest) {
     const user = await requireCurrentUser("viewer");
     const result = await listSignals({ input, user });
 
-    return NextResponse.json(result);
-  });
+    return apiJson(result, {}, { request });
+  }, { request });
 }

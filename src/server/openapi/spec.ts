@@ -83,6 +83,7 @@ export const openApiSpec = {
         responses: {
           "200": {
             description: "Slick API is reachable.",
+            headers: standardResponseHeaders(),
             content: {
               "application/json": {
                 schema: {
@@ -102,6 +103,9 @@ export const openApiSpec = {
         description:
           "Primary n8n ingress. The MVP dispatches signals.import. Other command types are validated by contract and return 422 until their use cases are implemented.",
         parameters: [
+          {
+            $ref: "#/components/parameters/RequestId"
+          },
           {
             $ref: "#/components/parameters/IdempotencyKey"
           },
@@ -126,8 +130,20 @@ export const openApiSpec = {
           }
         },
         responses: {
+          "200": {
+            description: "Idempotent replay of a previously accepted command.",
+            headers: standardResponseHeaders(),
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/AutomationCommandResponse"
+                }
+              }
+            }
+          },
           "202": {
             description: "Command accepted and dispatched.",
+            headers: standardResponseHeaders(),
             content: {
               "application/json": {
                 schema: {
@@ -138,6 +154,9 @@ export const openApiSpec = {
           },
           "400": {
             $ref: "#/components/responses/BadRequest"
+          },
+          "401": {
+            $ref: "#/components/responses/Unauthorized"
           },
           "403": {
             $ref: "#/components/responses/PolicyDenied"
@@ -160,6 +179,9 @@ export const openApiSpec = {
           "Imports deduplicated signal candidates and creates pending signal review requests. Prefer /api/automation/commands for new n8n workflows.",
         parameters: [
           {
+            $ref: "#/components/parameters/RequestId"
+          },
+          {
             $ref: "#/components/parameters/IdempotencyKey"
           }
         ],
@@ -174,8 +196,20 @@ export const openApiSpec = {
           }
         },
         responses: {
+          "200": {
+            description: "Idempotent replay of a previous signal import.",
+            headers: standardResponseHeaders(),
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/ImportSignalsResult"
+                }
+              }
+            }
+          },
           "201": {
             description: "Signals imported.",
+            headers: standardResponseHeaders(),
             content: {
               "application/json": {
                 schema: {
@@ -186,6 +220,12 @@ export const openApiSpec = {
           },
           "400": {
             $ref: "#/components/responses/BadRequest"
+          },
+          "401": {
+            $ref: "#/components/responses/Unauthorized"
+          },
+          "403": {
+            $ref: "#/components/responses/Forbidden"
           },
           "409": {
             $ref: "#/components/responses/Conflict"
@@ -199,6 +239,9 @@ export const openApiSpec = {
         operationId: "listSignals",
         summary: "List signals by status",
         parameters: [
+          {
+            $ref: "#/components/parameters/RequestId"
+          },
           {
             name: "status",
             in: "query",
@@ -221,6 +264,7 @@ export const openApiSpec = {
         responses: {
           "200": {
             description: "Signals returned.",
+            headers: standardResponseHeaders(),
             content: {
               "application/json": {
                 schema: {
@@ -228,6 +272,12 @@ export const openApiSpec = {
                 }
               }
             }
+          },
+          "400": {
+            $ref: "#/components/responses/BadRequest"
+          },
+          "401": {
+            $ref: "#/components/responses/Unauthorized"
           }
         }
       }
@@ -240,6 +290,9 @@ export const openApiSpec = {
         operationId: "listReviews",
         summary: "List review requests",
         parameters: [
+          {
+            $ref: "#/components/parameters/RequestId"
+          },
           {
             name: "status",
             in: "query",
@@ -262,6 +315,7 @@ export const openApiSpec = {
         responses: {
           "200": {
             description: "Review requests returned.",
+            headers: standardResponseHeaders(),
             content: {
               "application/json": {
                 schema: {
@@ -269,6 +323,12 @@ export const openApiSpec = {
                 }
               }
             }
+          },
+          "400": {
+            $ref: "#/components/responses/BadRequest"
+          },
+          "401": {
+            $ref: "#/components/responses/Unauthorized"
           }
         }
       }
@@ -281,6 +341,9 @@ export const openApiSpec = {
         description:
           "Decision endpoint guarded by the updateable Policy Engine. Policy denies return structured reasons.",
         parameters: [
+          {
+            $ref: "#/components/parameters/RequestId"
+          },
           {
             $ref: "#/components/parameters/UuidPathId"
           },
@@ -301,6 +364,7 @@ export const openApiSpec = {
         responses: {
           "200": {
             description: "Review decision applied.",
+            headers: standardResponseHeaders(),
             content: {
               "application/json": {
                 schema: {
@@ -310,8 +374,20 @@ export const openApiSpec = {
               }
             }
           },
+          "400": {
+            $ref: "#/components/responses/BadRequest"
+          },
+          "401": {
+            $ref: "#/components/responses/Unauthorized"
+          },
           "403": {
             $ref: "#/components/responses/PolicyDenied"
+          },
+          "404": {
+            $ref: "#/components/responses/NotFound"
+          },
+          "409": {
+            $ref: "#/components/responses/Conflict"
           }
         }
       }
@@ -324,6 +400,9 @@ export const openApiSpec = {
         description:
           "n8n polls this queue after signal approval. Returned items are source-backed and already policy-gated through signal review.",
         parameters: [
+          {
+            $ref: "#/components/parameters/RequestId"
+          },
           {
             name: "limit",
             in: "query",
@@ -338,6 +417,7 @@ export const openApiSpec = {
         responses: {
           "200": {
             description: "Context queue items returned.",
+            headers: standardResponseHeaders(),
             content: {
               "application/json": {
                 schema: {
@@ -345,6 +425,15 @@ export const openApiSpec = {
                 }
               }
             }
+          },
+          "400": {
+            $ref: "#/components/responses/BadRequest"
+          },
+          "401": {
+            $ref: "#/components/responses/Unauthorized"
+          },
+          "403": {
+            $ref: "#/components/responses/Forbidden"
           }
         }
       }
@@ -381,6 +470,18 @@ export const openApiSpec = {
         },
         description: "Stable ID carried across n8n, Slick API, audit events, logs, and dead letters."
       },
+      RequestId: {
+        name: "X-Request-Id",
+        in: "header",
+        required: false,
+        schema: {
+          type: "string",
+          minLength: 8,
+          maxLength: 200
+        },
+        description:
+          "Optional caller-generated request ID. Slick echoes it in X-Request-Id and error.requestId."
+      },
       UuidPathId: {
         name: "id",
         in: "path",
@@ -393,8 +494,12 @@ export const openApiSpec = {
     },
     responses: {
       BadRequest: errorResponse("Request validation failed."),
+      Unauthorized: errorResponse("Missing or invalid bearer token."),
+      Forbidden: errorResponse("Authenticated client does not have access to this resource."),
+      NotFound: errorResponse("Requested resource was not found."),
       Conflict: errorResponse("Request conflicts with current state or idempotency record."),
       PolicyDenied: errorResponse("Decision denied by policy."),
+      InternalServerError: errorResponse("Unexpected API failure."),
       UnprocessableEntity: errorResponse("Valid command, unsupported or unprocessable operation.")
     },
     schemas: {
@@ -1052,7 +1157,7 @@ export const openApiSpec = {
         properties: {
           error: {
             type: "object",
-            required: ["code", "message"],
+            required: ["code", "message", "requestId", "correlationId"],
             properties: {
               code: {
                 type: "string"
@@ -1062,6 +1167,14 @@ export const openApiSpec = {
               },
               details: {
                 additionalProperties: true
+              },
+              requestId: {
+                type: "string",
+                description: "Stable request identifier returned in X-Request-Id."
+              },
+              correlationId: {
+                type: "string",
+                description: "Trace identifier returned in X-Correlation-Id and carried across automation work."
               }
             }
           }
@@ -1163,6 +1276,9 @@ function signalDecisionPath(action: "approve" | "reject") {
       description: "Signal decisions are evaluated by updateable Slick policies before status changes.",
       parameters: [
         {
+          $ref: "#/components/parameters/RequestId"
+        },
+        {
           $ref: "#/components/parameters/UuidPathId"
         },
         {
@@ -1182,6 +1298,7 @@ function signalDecisionPath(action: "approve" | "reject") {
       responses: {
         "200": {
           description: `Signal ${action} decision applied.`,
+          headers: standardResponseHeaders(),
           content: {
             "application/json": {
               schema: {
@@ -1191,8 +1308,20 @@ function signalDecisionPath(action: "approve" | "reject") {
             }
           }
         },
+        "400": {
+          $ref: "#/components/responses/BadRequest"
+        },
+        "401": {
+          $ref: "#/components/responses/Unauthorized"
+        },
         "403": {
           $ref: "#/components/responses/PolicyDenied"
+        },
+        "404": {
+          $ref: "#/components/responses/NotFound"
+        },
+        "409": {
+          $ref: "#/components/responses/Conflict"
         }
       }
     }
@@ -1227,11 +1356,29 @@ function automationCommand(commandType: string, flow: string, payloadSchema: unk
 function errorResponse(description: string) {
   return {
     description,
+    headers: standardResponseHeaders(),
     content: {
       "application/json": {
         schema: {
           $ref: "#/components/schemas/ErrorResponse"
         }
+      }
+    }
+  };
+}
+
+function standardResponseHeaders() {
+  return {
+    "X-Request-Id": {
+      description: "Request ID echoed from X-Request-Id or generated by Slick.",
+      schema: {
+        type: "string"
+      }
+    },
+    "X-Correlation-Id": {
+      description: "Correlation ID echoed from X-Correlation-Id or derived from the request ID.",
+      schema: {
+        type: "string"
       }
     }
   };
