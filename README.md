@@ -37,6 +37,48 @@ npm test
 npm run build
 ```
 
+Run the local commit gate:
+
+```bash
+npm run verify:commit
+```
+
+Run the full CI-equivalent gate:
+
+```bash
+npm run verify
+```
+
+## Commit Gate
+
+This repo uses a committed Git pre-commit hook in `.githooks/pre-commit`.
+
+Install hooks for the current checkout:
+
+```bash
+npm run hooks:install
+```
+
+`npm install` also runs the hook installation through `prepare`.
+
+Before a commit is created, the hook runs:
+
+```bash
+npm run verify:commit
+```
+
+That means lint, typecheck, and tests must pass before Git creates the commit. The full GitHub Actions pipeline still runs the production build.
+
+## Test Results
+
+CI runs tests with a generated report:
+
+```bash
+npm run test:ci
+```
+
+The report is written to `reports/test-results.md` locally. In GitHub Actions, the same report is published into the workflow summary and uploaded as the `test-results` artifact.
+
 ## Architecture
 
 - [MVP Architecture](docs/mvp-architecture.md)
