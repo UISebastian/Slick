@@ -3,10 +3,12 @@ import type { CurrentUser } from "../../../auth/current-user";
 import { auditLog, type AuditLog } from "../../audit/audit-log";
 import { runMaybeWithIdempotency } from "../../idempotency/with-idempotency";
 import {
+  appendPolicyAudit,
   guardSignalDecision,
   PolicyDeniedError,
   type PolicyEvaluationResult
 } from "../../policies";
+import { createReviewRequest } from "../../reviews/review-request";
 import { reviewRepository, type ReviewRepository } from "../../reviews/repository";
 import type { ReviewDecisionRecord, ReviewRequest, ReviewRequestStatus } from "../../reviews/types";
 import { assertTransition } from "../../status/status-machine";
@@ -290,19 +292,14 @@ async function findOrCreateSignalReviewRequest(
     return existing;
   }
 
-  const now = new Date().toISOString();
-  return reviews.insertRequest({
-    id: randomUUID(),
-    agencyId: command.user.agencyId,
-    objectType: "signal",
-    objectId: command.signalId,
-    requestType: "approve_signal",
-    status: "pending",
-    requestedBy: "system",
-    createdAt: now,
-    updatedAt: now,
-    rowVersion: 1
-  });
+  return reviews.insertRequest(
+    createReviewRequest({
+      agencyId: command.user.agencyId,
+      objectType: "signal",
+      objectId: command.signalId,
+      requestType: "approve_signal"
+    })
+  );
 }
 
 async function transitionSignal(input: {
@@ -338,30 +335,4 @@ async function transitionSignal(input: {
   });
 
   return updated;
-}
-
-async function appendPolicyAudit(input: {
-  audit: AuditLog;
-  result: PolicyEvaluationResult;
-  user: CurrentUser;
-  objectType: string;
-  objectId: string;
-}) {
-  await input.audit.append({
-    agencyId: input.user.agencyId,
-    actorType: input.user.role === "automation" ? "api_client" : "member",
-    actorId: input.user.id,
-    eventType: input.result.allow ? "policy.decision_allowed" : "policy.decision_denied",
-    objectType: input.objectType,
-    objectId: input.objectId,
-    after: {
-      decision: input.result.decision,
-      result: input.result.audit.result,
-      severity: input.result.severity,
-      reasons: input.result.reasons,
-      policySetId: input.result.audit.policySetId,
-      policySetVersion: input.result.audit.policySetVersion,
-      policyIds: input.result.audit.policyIds
-    }
-  });
 }

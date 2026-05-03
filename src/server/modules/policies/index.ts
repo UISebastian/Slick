@@ -1,3 +1,4 @@
+export { appendPolicyAudit } from "./audit";
 export { defaultPolicySet } from "./default-policy-set";
 export { assertPolicyAllowed, evaluatePolicy, patchPolicy, PolicyDeniedError } from "./engine";
 export {

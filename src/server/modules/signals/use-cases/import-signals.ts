@@ -2,8 +2,8 @@ import { randomUUID } from "node:crypto";
 import type { CurrentUser } from "../../../auth/current-user";
 import { type AuditLog, auditLog } from "../../audit/audit-log";
 import { runWithIdempotency } from "../../idempotency/with-idempotency";
+import { createReviewRequest } from "../../reviews/review-request";
 import { reviewRepository, type ReviewRepository } from "../../reviews/repository";
-import type { ReviewRequest } from "../../reviews/types";
 import { requireRole } from "../../workflows/authorization";
 import type { ImportSignalsRequest } from "../schemas";
 import { signalRepository, type SignalRepository } from "../repository";
@@ -217,19 +217,12 @@ async function createSignalReviewRequest(
   signalId: string,
   reviews: ReviewRepository
 ) {
-  const now = new Date().toISOString();
-  const reviewRequest: ReviewRequest = {
-    id: randomUUID(),
-    agencyId,
-    objectType: "signal",
-    objectId: signalId,
-    requestType: "approve_signal",
-    status: "pending",
-    requestedBy: "system",
-    createdAt: now,
-    updatedAt: now,
-    rowVersion: 1
-  };
-
-  return reviews.insertRequest(reviewRequest);
+  return reviews.insertRequest(
+    createReviewRequest({
+      agencyId,
+      objectType: "signal",
+      objectId: signalId,
+      requestType: "approve_signal"
+    })
+  );
 }
