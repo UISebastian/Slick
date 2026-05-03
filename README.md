@@ -28,6 +28,12 @@ Run the app:
 npm run dev
 ```
 
+API documentation:
+
+- Human-readable reference: `http://localhost:3000/docs/api`
+- OpenAPI JSON: `http://localhost:3000/api/openapi.json`
+- Developer portal: `http://localhost:3000/developers`
+
 Verify:
 
 ```bash

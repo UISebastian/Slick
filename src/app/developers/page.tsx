@@ -52,7 +52,10 @@ export default function DeveloperPortalPage() {
           </p>
         </div>
         <nav className={styles.headerActions} aria-label="Developer resources">
-          <Link className={styles.primaryLink} href="/api/openapi.json">
+          <Link className={styles.primaryLink} href="/docs/api">
+            API docs
+          </Link>
+          <Link className={styles.secondaryLink} href="/api/openapi.json">
             OpenAPI JSON
           </Link>
           <Link className={styles.secondaryLink} href="/admin">
