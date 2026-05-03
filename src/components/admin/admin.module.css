@@ -244,6 +244,12 @@
   background: #f8fafc;
 }
 
+.button:disabled {
+  border-color: #d7dce3;
+  background: #f2f4f7;
+  color: #98a2b3;
+}
+
 .grid {
   display: grid;
   gap: 16px;
@@ -754,6 +760,256 @@
   gap: 8px;
 }
 
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.filterBar {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(128px, auto);
+  gap: 8px;
+  width: min(100%, 430px);
+}
+
+.policyConsole,
+.policyEditorGrid {
+  display: grid;
+  gap: 16px;
+  align-items: start;
+  margin-top: 16px;
+}
+
+.policyConsole {
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+}
+
+.policyEditorGrid {
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+}
+
+.endpointTable {
+  min-width: 860px;
+}
+
+.selectedTableRow td {
+  background: #f8fbfb;
+}
+
+.endpointSelectButton {
+  display: grid;
+  width: 100%;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: default;
+  padding: 0;
+  text-align: left;
+}
+
+.methodPath {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.methodBadge {
+  display: inline-flex;
+  min-width: 48px;
+  justify-content: center;
+  border: 1px solid #cfd8e3;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #344054;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  padding: 4px 6px;
+}
+
+.policyVersionList {
+  display: grid;
+  gap: 8px;
+}
+
+.policyVersionButton {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  width: 100%;
+  border: 1px solid #e4e9ef;
+  border-radius: 8px;
+  background: #ffffff;
+  color: inherit;
+  cursor: default;
+  padding: 12px;
+  text-align: left;
+}
+
+.policyVersionButtonCurrent {
+  border-color: #99d6ce;
+  background: #f6fbfa;
+}
+
+.policyEditorBody {
+  display: grid;
+  gap: 18px;
+}
+
+.policyEditorBody .formGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.formWide {
+  grid-column: 1 / -1;
+}
+
+.routeFieldset {
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.routeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.routeOption {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  border: 1px solid #e4e9ef;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.routeOptionSelected {
+  border-color: #99d6ce;
+  background: #f6fbfa;
+}
+
+.routeOptionTitle {
+  display: block;
+  color: #101828;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.routeOptionMeta {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.policySubhead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.policySubhead h3 {
+  margin: 0;
+  color: #101828;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.policySubhead p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.thresholdList,
+.constraintList {
+  display: grid;
+  gap: 8px;
+}
+
+.thresholdRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.7fr);
+  gap: 14px;
+  align-items: center;
+  border: 1px solid #e4e9ef;
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 12px;
+}
+
+.thresholdControls {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) 82px;
+  gap: 10px;
+  align-items: center;
+}
+
+.thresholdControls input[type="range"] {
+  width: 100%;
+  accent-color: #0f766e;
+}
+
+.constraintRow {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  border-bottom: 1px solid #e4e9ef;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+  padding: 10px 0;
+}
+
+.constraintRow:first-child {
+  padding-top: 0;
+}
+
+.constraintRow:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.constraintRow input {
+  margin-top: 2px;
+  accent-color: #0f766e;
+}
+
+.auditTrail {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.auditItem {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  gap: 10px;
+}
+
 .messagePreview {
   display: grid;
   gap: 12px;
@@ -903,6 +1159,11 @@
     grid-template-columns: 1fr;
   }
 
+  .policyConsole,
+  .policyEditorGrid {
+    grid-template-columns: 1fr;
+  }
+
   .cockpitColumns,
   .policyColumns,
   .opsColumns {
@@ -937,8 +1198,15 @@
   }
 
   .detailGrid,
-  .keyValueGrid {
+  .keyValueGrid,
+  .policyEditorBody .formGrid,
+  .routeGrid {
     grid-template-columns: 1fr;
+  }
+
+  .filterBar {
+    grid-template-columns: 1fr;
+    width: 100%;
   }
 
   .pipelineStep {
@@ -948,7 +1216,8 @@
   .healthRow,
   .slaRow,
   .compactRow,
-  .sourceQualityHeader {
+  .sourceQualityHeader,
+  .thresholdRow {
     grid-template-columns: 1fr;
   }
 
@@ -959,7 +1228,8 @@
 
 @media (max-width: 520px) {
   .slaMetrics,
-  .sourceStats {
+  .sourceStats,
+  .thresholdControls {
     grid-template-columns: 1fr;
   }
 }

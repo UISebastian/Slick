@@ -32,6 +32,101 @@ const tags = openApiSpec.tags.map((tag) => ({
 }));
 const schemaEntries = Object.entries(openApiSpec.components.schemas);
 
+const n8nFlowStages = [
+  {
+    step: "01",
+    owner: "n8n",
+    title: "Collect and normalize a signal",
+    status: "Runnable locally",
+    contract: "Build signals.import command envelope",
+    detail:
+      "n8n starts from a schedule, webhook, or manual trigger, collects source evidence, computes dedupeKey, correlationId, and idempotencyKey, then builds the Slick automation command."
+  },
+  {
+    step: "02",
+    owner: "Slick API",
+    title: "Import through Product API",
+    status: "Implemented",
+    contract: "POST /api/automation/commands",
+    detail:
+      "Slick validates the OpenAPI/Zod contract, checks idempotency headers against body fields, dispatches signals.import, creates the signal, and opens a review request."
+  },
+  {
+    step: "03",
+    owner: "Slick Policy",
+    title: "Route approval to Admin or AI",
+    status: "Architecture",
+    contract: "signal.route_approval policy",
+    detail:
+      "Slick evaluates admin-editable policies against the signal, review request, source quality, evidence confidence, freshness, ICP score, and risk flags. The route is Admin, AI, shadow AI, or blocked."
+  },
+  {
+    step: "04",
+    owner: "Admin or AI",
+    title: "Approve or reject by policy",
+    status: "Policy-routed",
+    contract: "signal.approve / signal.reject",
+    detail:
+      "Admins can decide through the dashboard. AI can decide only when policy explicitly allows it and all thresholds pass; otherwise Slick escalates to Admin with reasons and audit metadata."
+  },
+  {
+    step: "05",
+    owner: "n8n",
+    title: "Poll context queue",
+    status: "Implemented",
+    contract: "GET /api/context-queue?limit=50",
+    detail:
+      "After approval, n8n polls approved signals that are ready for enrichment and carries the same correlation model into downstream work."
+  },
+  {
+    step: "06",
+    owner: "n8n",
+    title: "Build context",
+    status: "Contracted",
+    contract: "context.complete / context.fail",
+    detail:
+      "The command schema exists for source-backed context completion and failure reporting. The dispatcher currently returns 422 until the use case is implemented."
+  },
+  {
+    step: "07",
+    owner: "n8n + Slick",
+    title: "Draft, review, dispatch, reply, outcome",
+    status: "Contracted",
+    contract: "draft.complete, dispatch.record_sent, reply.ingest, outcome.log",
+    detail:
+      "The full lifecycle is modeled as automation commands with policy-gated Slick decisions between automated preparation steps."
+  }
+] as const;
+
+const n8nRunbookSteps = [
+  "Start Slick with npm run dev.",
+  "Start n8n with docker compose -f docker-compose.n8n.yml up -d.",
+  "Import n8n/workflows/slick-local-signal-import.json into n8n.",
+  "Run the workflow manually; it posts signals.import to /api/automation/commands.",
+  "Open /admin or /api/reviews?status=pending to inspect the created review request.",
+  "Approve the signal in Slick, or later let an AI decision pass the policy route, then poll /api/context-queue?limit=50."
+] as const;
+
+const policyRoutingPrinciples = [
+  "Admins edit policies as thresholds and scopes, not ad hoc workflow logic.",
+  "Slick evaluates route eligibility before any Admin or AI decision is applied.",
+  "AI may approve or reject only when source quality, evidence confidence, freshness, ICP, model confidence, and risk thresholds pass.",
+  "Failed or missing policy coverage escalates to Admin with reason codes.",
+  "Every route, AI attempt, Admin decision, override, and policy version is audit-linked."
+] as const;
+
+const n8nCommandCoverage = [
+  ["signals.import", "signals.import", "Implemented", "Creates pending signal review requests."],
+  ["context.complete", "context.build", "Schema ready", "Dispatcher returns 422 until context persistence exists."],
+  ["context.fail", "context.build", "Schema ready", "Failure payload and retry metadata are contracted."],
+  ["draft.complete", "draft.generate", "Schema ready", "Draft payload is contracted; approval remains Slick-owned."],
+  ["draft.fail", "draft.generate", "Schema ready", "Draft failure payload is contracted."],
+  ["dispatch.record_sent", "dispatch.send", "Schema ready", "Provider send result can be recorded after dispatch approval."],
+  ["dispatch.fail", "dispatch.send", "Schema ready", "Provider failure result can be recorded."],
+  ["reply.ingest", "replies.ingest", "Schema ready", "Replies can be normalized without exposing raw mailbox secrets."],
+  ["outcome.log", "outcomes.remind", "Schema ready", "Outcome events can be logged after reply or follow-up workflows."]
+] as const;
+
 export default function ApiDocumentationPage() {
   return (
     <main className={styles.page}>
@@ -82,6 +177,7 @@ export default function ApiDocumentationPage() {
           <a href="#overview">Overview</a>
           <a href="#auth">Auth</a>
           <a href="#errors">Errors</a>
+          <a href="#n8n-flow">n8n flow</a>
           <a href="#endpoints">Endpoints</a>
           <a href="#schemas">Schemas</a>
         </aside>
@@ -156,6 +252,119 @@ export default function ApiDocumentationPage() {
                 }
               }}
             />
+          </section>
+
+          <section className={styles.section} id="n8n-flow">
+            <div className={styles.sectionHeader}>
+              <p className={styles.kicker}>End-to-end orchestration</p>
+              <h2>n8n drives work, Slick owns decisions</h2>
+              <p>
+                This is the complete automation boundary from signal ingestion to downstream
+                context, draft, dispatch, reply, and outcome work. The first four steps are runnable
+                in the local MVP; the remaining commands are already contracted for implementation.
+              </p>
+            </div>
+
+            <div className={styles.flowTimeline}>
+              {n8nFlowStages.map((stage) => (
+                <article className={styles.flowStage} key={stage.step}>
+                  <div className={styles.flowStageTopline}>
+                    <span>{stage.step}</span>
+                    <strong>{stage.owner}</strong>
+                    <em>{stage.status}</em>
+                  </div>
+                  <h3>{stage.title}</h3>
+                  <code>{stage.contract}</code>
+                  <p>{stage.detail}</p>
+                </article>
+              ))}
+            </div>
+
+            <div className={styles.flowSplit}>
+              <article className={styles.runbookCard}>
+                <h3>Local runbook</h3>
+                <ol>
+                  {n8nRunbookSteps.map((step) => (
+                    <li key={step}>{step}</li>
+                  ))}
+                </ol>
+              </article>
+
+              <article className={styles.runbookCard}>
+                <h3>Implementation artifacts</h3>
+                <dl className={styles.artifactList}>
+                  <div>
+                    <dt>Workflow export</dt>
+                    <dd>
+                      <code>n8n/workflows/slick-local-signal-import.json</code>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Payload fixture</dt>
+                    <dd>
+                      <code>n8n/payloads/slick-local-signal-import-command.json</code>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Runbook</dt>
+                    <dd>
+                      <code>docs/n8n-end-to-end-flow.md</code>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Policy routing architecture</dt>
+                    <dd>
+                      <code>docs/policy-routed-approval-architecture.md</code>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Contract source</dt>
+                    <dd>
+                      <code>src/server/modules/automation/schemas.ts</code>
+                    </dd>
+                  </div>
+                </dl>
+              </article>
+            </div>
+
+            <article className={styles.runbookCard}>
+              <h3>Policy-routed approval principles</h3>
+              <ul className={styles.principleList}>
+                {policyRoutingPrinciples.map((principle) => (
+                  <li key={principle}>{principle}</li>
+                ))}
+              </ul>
+            </article>
+
+            <div className={styles.subsection}>
+              <h4>Command coverage</h4>
+              <div className={styles.tableWrap}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Command</th>
+                      <th>Flow</th>
+                      <th>Status</th>
+                      <th>Capability</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {n8nCommandCoverage.map(([command, flow, status, capability]) => (
+                      <tr key={command}>
+                        <td>
+                          <code>{command}</code>
+                        </td>
+                        <td>
+                          <code>{flow}</code>
+                        </td>
+                        <td>{status}</td>
+                        <td>{capability}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </section>
 
           <section className={styles.section} id="endpoints">

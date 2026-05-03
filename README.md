@@ -31,6 +31,7 @@ npm run dev
 API documentation:
 
 - Human-readable reference: `http://localhost:3000/docs/api`
+- n8n end-to-end flow: `http://localhost:3000/docs/api#n8n-flow`
 - OpenAPI JSON: `http://localhost:3000/api/openapi.json`
 - OpenAPI JSON download: `http://localhost:3000/api/openapi.json?download=1`
 - Developer portal: `http://localhost:3000/developers`
@@ -91,6 +92,8 @@ The report is written to `reports/test-results.md` locally. In GitHub Actions, t
 - [MVP Architecture](docs/mvp-architecture.md)
 - [Implementation Strategy](docs/implementation-strategy.md)
 - [Architecture Sketch](docs/architecture-sketch.md)
+- [n8n End-to-End Flow](docs/n8n-end-to-end-flow.md)
+- [Policy-Routed Approval Architecture](docs/policy-routed-approval-architecture.md)
 
 ## Secrets
 

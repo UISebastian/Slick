@@ -47,3 +47,18 @@ Runtime code should call `evaluatePolicy` or a guard with an explicit `policySet
 when the agency has stored overrides. The test suite demonstrates changing the
 draft approval threshold from `70` to `90` by patching policy data; the guard
 code path does not change.
+
+## Policy-Routed Approval
+
+Signal approval is evolving from human-only review to policy-routed review. The
+route can be `admin`, `ai`, `shadow_ai`, or `blocked`, but Slick still owns the
+decision boundary. AI may approve or reject only when admin-editable policies
+explicitly allow the route and all evidence/source-quality thresholds pass.
+Otherwise, the review escalates to Admin with policy reasons.
+
+See [Policy-Routed Signal Approval Architecture](policy-routed-approval-architecture.md).
+
+The Admin console surface for endpoint-scoped policy management lives at
+`/admin/policies`. The current UI is mock-backed and models the intended CRUD
+workflow: endpoint coverage, policy versions, draft editing, threshold changes,
+AI/Admin routing, activation, archive, and audit trail.

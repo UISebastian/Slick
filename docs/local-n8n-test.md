@@ -6,6 +6,7 @@ This local setup runs n8n next to the Slick Next.js app and connects n8n to Slic
 
 - Slick Admin: `http://localhost:3000/admin`
 - Slick Developer Portal: `http://localhost:3000/developers`
+- Slick API Docs: `http://localhost:3000/docs/api#n8n-flow`
 - Slick OpenAPI: `http://localhost:3000/api/openapi.json`
 - n8n: `http://localhost:5679`
 - n8n to Slick API from Docker: `http://host.docker.internal:3000`
@@ -49,6 +50,31 @@ The command includes:
 - `payload.signals[]`
 
 The Slick API validates the automation command, dispatches `signals.import`, creates a signal review request, and returns the import result.
+
+## End-to-End Slice
+
+The local workflow covers the first runnable n8n orchestration slice:
+
+```txt
+n8n manual trigger
+  -> build signals.import command
+  -> POST /api/automation/commands
+  -> Slick creates signal + review request
+  -> human approval in Slick Admin
+  -> n8n polls GET /api/context-queue?limit=50
+```
+
+The full end-to-end lifecycle is documented in:
+
+```txt
+docs/n8n-end-to-end-flow.md
+```
+
+The visual API docs version is available at:
+
+```txt
+http://localhost:3000/docs/api#n8n-flow
+```
 
 ## Smoke Test Without n8n
 

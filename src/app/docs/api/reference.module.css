@@ -236,6 +236,125 @@
   line-height: 1.55;
 }
 
+.flowTimeline {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.flowStage,
+.runbookCard {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  border: 1px solid #e1e7ef;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 13px;
+}
+
+.flowStageTopline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.flowStageTopline span,
+.flowStageTopline strong,
+.flowStageTopline em {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  border: 1px solid #cfd8e3;
+  border-radius: 999px;
+  color: #374151;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1.2;
+  padding: 4px 8px;
+}
+
+.flowStageTopline span {
+  border-color: #99d6ce;
+  background: #ecfdf9;
+  color: #0f766e;
+}
+
+.flowStageTopline em {
+  border-color: #fedf89;
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.flowStage h3,
+.runbookCard h3 {
+  margin: 0;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.flowStage code,
+.artifactList code {
+  color: #175cd3;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.flowStage p {
+  margin: 0;
+  color: #5b6472;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.flowSplit {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 10px;
+}
+
+.runbookCard ol,
+.principleList,
+.artifactList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.runbookCard ol,
+.principleList {
+  padding-left: 20px;
+}
+
+.runbookCard li,
+.principleList li,
+.artifactList dd,
+.artifactList dt {
+  color: #374151;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.artifactList div {
+  display: grid;
+  gap: 2px;
+}
+
+.artifactList dt {
+  color: #5b6472;
+  font-weight: 900;
+}
+
+.artifactList dd {
+  margin: 0;
+}
+
 .endpointGroup {
   display: grid;
   gap: 10px;
@@ -468,7 +587,8 @@
   .summaryBand,
   .tagGrid,
   .contractGrid,
-  .responseGrid {
+  .responseGrid,
+  .flowTimeline {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -492,6 +612,8 @@
   .tagGrid,
   .contractGrid,
   .responseGrid,
+  .flowTimeline,
+  .flowSplit,
   .sidebar,
   .metaList,
   .operationDetails summary {

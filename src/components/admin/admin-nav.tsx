@@ -10,6 +10,7 @@ const navItems = [
   { href: "/admin/signals", label: "Signals", count: queueSummaries[0].pending },
   { href: "/admin/drafts", label: "Drafts", count: queueSummaries[1].pending },
   { href: "/admin/dispatch", label: "Dispatch", count: queueSummaries[2].pending },
+  { href: "/admin/policies", label: "Policies", count: 3 },
   { href: "/admin/replies", label: "Replies", count: queueSummaries[3].pending },
   { href: "/admin/workflows", label: "Workflows", count: queueSummaries[4].pending }
 ] as const;
