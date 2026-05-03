@@ -32,6 +32,7 @@ API documentation:
 
 - Human-readable reference: `http://localhost:3000/docs/api`
 - OpenAPI JSON: `http://localhost:3000/api/openapi.json`
+- OpenAPI JSON download: `http://localhost:3000/api/openapi.json?download=1`
 - Developer portal: `http://localhost:3000/developers`
 
 Verify:

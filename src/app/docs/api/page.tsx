@@ -45,7 +45,11 @@ export default function ApiDocumentationPage() {
           </p>
         </div>
         <nav className={styles.headerActions} aria-label="API documentation resources">
-          <Link className={styles.primaryLink} href="/api/openapi.json">
+          <Link
+            className={styles.primaryLink}
+            href="/api/openapi.json?download=1"
+            download="slick-openapi.json"
+          >
             OpenAPI JSON
           </Link>
           <Link className={styles.secondaryLink} href="/developers">
