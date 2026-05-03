@@ -15,6 +15,8 @@
     "test": "vitest run",
     "test:ci": "vitest run --reporter=json --outputFile=reports/vitest-results.json; test_status=$?; node scripts/render-test-report.mjs; report_status=$?; if [ $test_status -ne 0 ]; then exit $test_status; fi; exit $report_status",
     "test:watch": "vitest",
+    "test:workflows": "vitest run src/server/modules",
+    "test:contracts": "vitest run src/server/http src/server/modules/automation",
     "verify:commit": "npm run lint && npm run typecheck && npm run test:ci",
     "verify": "npm run lint && npm run typecheck && npm run test:ci && npm run build",
     "hooks:install": "node scripts/install-git-hooks.mjs",

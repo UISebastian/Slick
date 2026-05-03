@@ -1,15 +1,10 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import type { CurrentUser } from "../../auth/current-user";
+import { signalCandidate, testUser } from "../../../test/workflow-fixtures";
 import { listReviews } from "../reviews/use-cases/list-reviews";
 import { resetWorkflowMemoryStore } from "../workflows/in-memory-store";
 import { executeAutomationCommand } from "./execute-command";
 
-const user: CurrentUser = {
-  id: "00000000-0000-4000-8000-000000000001",
-  agencyId: "00000000-0000-4000-8000-000000000010",
-  email: "owner@example.com",
-  role: "owner"
-};
+const user = testUser("owner");
 
 describe("executeAutomationCommand", () => {
   beforeEach(() => {
@@ -33,9 +28,7 @@ describe("executeAutomationCommand", () => {
         occurredAt: "2026-04-30T10:00:00.000Z",
         payload: {
           signals: [
-            {
-              campaignId: "00000000-0000-4000-8000-000000000020",
-              signalRuleId: "00000000-0000-4000-8000-000000000030",
+            signalCandidate({
               sourceType: "api",
               sourceUrl: "https://example.com/partners/northstar",
               sourceRunId: "n8n-local-run-1",
@@ -50,7 +43,7 @@ describe("executeAutomationCommand", () => {
               },
               icpMatchScore: 88,
               dedupeKey: "northstar-cart.example:n8n-local-run-1"
-            }
+            })
           ]
         }
       }
